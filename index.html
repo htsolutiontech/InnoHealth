@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lộ trình AI Bệnh viện Việt Nam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,700&family=Roboto+Mono:wght@400;500&display=swap&subset=vietnamese">
+<style>
+/* Layout: dossier — sticky index rail left, document body right; legal document numbers set like stamps */
+:root{
+  --paper:#f5f7f9; --sheet:#ffffff; --ink:#16233a; --ink-2:#4a5a72; --rule:#d5dde7; --tint:#e8eef5;
+  --navy:#1f3f78; --seal:#b3261e; --seal-tint:#fbe9e7;
+  --ok:#1d6b45; --ok-tint:#e3f2ea; --warn:#8a5a00; --warn-tint:#fbf1dc;
+  --f-display:"Literata",Georgia,"Times New Roman",serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-mono:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1520; --sheet:#151d2b; --ink:#e4eaf3; --ink-2:#a3b1c6; --rule:#2a3548; --tint:#1b2638;
+  --navy:#8fb0ec; --seal:#f08a80; --seal-tint:#3a1c1b;
+  --ok:#7fd1a6; --ok-tint:#16301f; --warn:#e8c06a; --warn-tint:#33280f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1520; --sheet:#151d2b; --ink:#e4eaf3; --ink-2:#a3b1c6; --rule:#2a3548; --tint:#1b2638;
+  --navy:#8fb0ec; --seal:#f08a80; --seal-tint:#3a1c1b;
+  --ok:#7fd1a6; --ok-tint:#16301f; --warn:#e8c06a; --warn-tint:#33280f; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65}
+/* language switching: every bilingual string carries class vi or en */
+.app.lang-vi .en, .app.lang-en .vi{display:none!important}
+
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+a{color:var(--navy)}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h2{font-size:clamp(1.55rem,3vw,2rem);font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.lede{color:var(--ink-2);max-width:66ch}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.doc{font-family:var(--f-mono);font-size:.78rem;border:1px solid currentColor;color:var(--navy);padding:1px 7px;border-radius:3px;white-space:nowrap;display:inline-block;line-height:1.5}
+.doc.seal{color:var(--seal)}
+.chip{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;display:inline-block}
+.chip.live{background:var(--ok-tint);color:var(--ok)}
+.chip.draft{background:var(--warn-tint);color:var(--warn)}
+.chip.check{background:var(--tint);color:var(--ink-2)}
+.chip.high{background:var(--seal-tint);color:var(--seal)}
+
+/* masthead */
+.mast{border-bottom:1px solid var(--rule);background:var(--sheet);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.mast .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:12px;flex-wrap:wrap}
+.mast b{font-family:var(--f-display);font-size:1.05rem}
+.mast .right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mast .upd{font-family:var(--f-mono);font-size:.75rem;color:var(--ink-2)}
+.lang{display:inline-flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.lang button{font:inherit;font-size:.8rem;font-weight:600;border:0;background:transparent;color:var(--ink-2);padding:5px 12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--navy);color:var(--sheet)}
+
+/* hero */
+.hero{padding-block:48px 36px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;align-items:end}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);font-weight:700;letter-spacing:-.01em;margin-top:12px}
+.hero h1 em{font-style:normal;color:var(--seal)}
+.hero .lede{margin-top:18px;font-size:1.08rem}
+.stamp{border:2px solid var(--seal);color:var(--seal);border-radius:6px;padding:16px 18px;transform:rotate(-1.2deg);background:var(--sheet)}
+.stamp .eyebrow{color:var(--seal)}
+.stamp strong{display:block;font-family:var(--f-display);font-size:1.6rem;margin:4px 0 6px;font-variant-numeric:tabular-nums}
+.stamp p{color:var(--ink);font-size:.92rem}
+
+/* chain of 3 steps */
+.chain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--rule);border-radius:8px;background:var(--sheet);overflow:hidden}
+.chain > div{padding:22px 22px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;min-width:0}
+.chain > div:last-child{border-right:0}
+.chain .n{font-family:var(--f-display);font-size:2.4rem;color:var(--navy);line-height:1}
+.chain .desc{color:var(--ink-2);font-size:.93rem}
+.chain .gate{margin-top:auto;padding-top:12px;border-top:1px dashed var(--rule);font-size:.86rem;color:var(--ink-2)}
+.chain .gate b{color:var(--ink)}
+
+/* body grid */
+.body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;margin-top:56px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);align-self:start;display:flex;flex-direction:column;gap:2px;font-size:.88rem}
+.toc a{text-decoration:none;color:var(--ink-2);padding:6px 10px;border-left:2px solid var(--rule)}
+.toc a:hover{color:var(--ink);border-left-color:var(--navy)}
+.toc .eyebrow{padding:0 10px 8px}
+main{display:flex;flex-direction:column;gap:72px;min-width:0}
+section{display:flex;flex-direction:column;gap:20px;scroll-margin-top:80px}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:8px}
+
+/* timeline */
+.tl{display:flex;flex-direction:column;padding:22px 18px 4px}
+.tl-row{display:grid;grid-template-columns:110px 18px minmax(0,1fr);gap:14px}
+.tl-date{font-family:var(--f-mono);font-size:.82rem;color:var(--ink-2);padding-top:3px;text-align:right;font-variant-numeric:tabular-nums}
+.tl-axis{position:relative}
+.tl-axis::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--rule)}
+.tl-axis::after{content:"";position:absolute;left:3px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--sheet);border:2px solid var(--navy)}
+.tl-row.key .tl-axis::after{background:var(--seal);border-color:var(--seal)}
+.tl-row.future .tl-axis::after{border-style:dashed;border-color:var(--ink-2)}
+.tl-row.future.key .tl-axis::after{border-color:var(--seal)}
+.tl-body{padding-bottom:22px;display:flex;flex-direction:column;gap:4px}
+.tl-body .top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tl-body p{color:var(--ink-2);font-size:.94rem;max-width:68ch}
+
+/* callout */
+.straight{border-left:4px solid var(--seal);background:var(--sheet);padding:18px 20px;border-radius:0 8px 8px 0;display:flex;flex-direction:column;gap:8px}
+.straight b{font-family:var(--f-display)}
+
+/* classifier */
+.clf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+.clf-list{border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:8px}
+.clf-list button{font:inherit;color:inherit;background:transparent;border:0;text-align:left;cursor:pointer;padding:10px 12px;border-radius:6px;font-size:.92rem;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.clf-list button:hover{background:var(--tint)}
+.clf-list button[aria-pressed="true"]{background:var(--tint);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.high{background:var(--seal)} .dot.mid{background:var(--warn)} .dot.low{background:var(--ok)}
+.clf-out{padding:22px 24px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.clf-out ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.clf-out .note{font-size:.84rem;color:var(--ink-2);border-top:1px dashed var(--rule);padding-top:12px}
+
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.role{padding:18px;display:flex;flex-direction:column;gap:8px}
+.role .hrs{font-family:var(--f-mono);font-size:.8rem;color:var(--navy)}
+.role ul{margin:0;padding-left:18px;font-size:.9rem;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+
+/* data lake */
+.lake-svg{overflow-x:auto;padding:16px}
+.lake-svg svg{min-width:720px;width:100%;height:auto;display:block}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:.86rem;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--navy);color:var(--sheet);border-color:var(--navy)}
+.domain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.domain > div{padding:18px 20px;border-bottom:1px solid var(--rule);min-width:0}
+.domain > div:nth-child(odd){border-right:1px solid var(--rule)}
+.domain > div.full{grid-column:1/-1;border-right:0;border-bottom:0}
+.domain h4{margin:0 0 6px;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);font-weight:600}
+.domain p,.domain li{font-size:.92rem}
+.domain ul{margin:0;padding-left:18px}
+
+/* lifecycle */
+.life{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.life > div{padding:18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;min-width:0}
+.life > div:nth-child(4n){border-right:0}
+.life > div:nth-last-child(-n+4){border-bottom:0}
+.life .k{font-family:var(--f-mono);font-size:.76rem;color:var(--navy)}
+.life p{font-size:.88rem;color:var(--ink-2)}
+.life .out{font-size:.8rem;color:var(--ink);margin-top:auto}
+
+/* roadmap */
+.road-wrap{overflow-x:auto}
+.road{display:flex;flex-direction:column;min-width:760px}
+.road-row{display:grid;grid-template-columns:170px repeat(8,minmax(0,1fr));align-items:center;border-bottom:1px solid var(--rule);min-height:42px}
+.road-row:last-child{border-bottom:0}
+.road-row > .lbl{font-size:.84rem;padding:8px 12px;font-weight:600}
+.road-head span{font-family:var(--f-mono);font-size:.72rem;color:var(--ink-2);text-align:center;padding:8px 0}
+.bar{height:16px;border-radius:3px;margin:0 2px}
+.bar.b1{background:var(--navy)} .bar.b1.soft{opacity:.45}
+.bar.b2{background:var(--ok)} .bar.b3{background:var(--warn)} .bar.b4{background:var(--seal)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* ethics */
+.eth{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.eth .sheet{padding:18px;display:flex;flex-direction:column;gap:6px}
+.eth p{font-size:.9rem;color:var(--ink-2)}
+.eth .ctl{color:var(--ink)}
+
+.pit{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.pit li{display:flex;flex-direction:column;gap:4px;padding:16px 18px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px}
+.pit li b{font-family:var(--f-display)}
+.pit li span{color:var(--ink-2);font-size:.92rem}
+
+.src{font-size:.86rem;color:var(--ink-2);display:flex;flex-direction:column;gap:6px;margin:0;padding-left:18px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--ink-2)}
+
+@media (max-width:960px){
+  .body{grid-template-columns:minmax(0,1fr)}
+  .toc{display:none}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .roles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .life{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .life > div{border-right:1px solid var(--rule)!important;border-bottom:1px solid var(--rule)!important}
+  .life > div:nth-child(2n){border-right:0!important}
+}
+@media (max-width:680px){
+  .chain{grid-template-columns:minmax(0,1fr)}
+  .chain > div{border-right:0;border-bottom:1px solid var(--rule)}
+  .chain > div:last-child{border-bottom:0}
+  .clf{grid-template-columns:minmax(0,1fr)}
+  .clf-list{border-right:0;border-bottom:1px solid var(--rule)}
+  .roles,.eth,.domain,.life{grid-template-columns:minmax(0,1fr)}
+  .domain > div{border-right:0!important}
+  .life > div{border-right:0!important}
+  .tl-row{grid-template-columns:78px 18px minmax(0,1fr);gap:10px}
+  .stamp{transform:none}
+  .mast .upd{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app lang-vi" id="app">
+
+<header class="mast">
+  <div class="wrap">
+    <b><span class="vi">Lộ trình AI Bệnh viện Việt Nam</span><span class="en">Vietnam Hospital AI Roadmap</span></b>
+    <div class="right">
+      <span class="upd"><span class="vi">Pháp lý cập nhật đến 14/10/2026</span><span class="en">Legal status as of 14 Oct 2026</span></span>
+      <div class="lang" role="group" aria-label="Language / Ngôn ngữ">
+        <button type="button" id="btn-vi" data-set="vi" aria-pressed="true">VI</button>
+        <button type="button" id="btn-en" data-set="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="hero">
+  <div>
+    <p class="eyebrow"><span class="vi">Ứng dụng AI trong quản trị, vận hành cơ sở khám chữa bệnh</span><span class="en">AI for hospital management and operations</span></p>
+    <h1 class="vi">AI chỉ an toàn khi <em>con người hiểu nó</em>, dữ liệu sạch trước và pháp lý đi cùng từ ngày đầu.</h1>
+    <h1 class="en">AI is only safe when <em>people understand it</em>, data comes first, and compliance starts on day one.</h1>
+    <p class="lede vi">Từ 01/3/2026, Luật Trí tuệ nhân tạo có hiệu lực và AI y tế không còn là vùng xám. Trang này đặt ra một trình tự triển khai bắt buộc cho bệnh viện Việt Nam: đào tạo nhân viên y tế trước, xây kho dữ liệu theo chuyên khoa sau, rồi mới phát triển và đưa AI vào vận hành, mỗi bước gắn với văn bản pháp luật đang có hiệu lực.</p>
+    <p class="lede en">Vietnam's Law on Artificial Intelligence took effect on 1 March 2026, so healthcare AI is no longer a grey zone. This page sets a fixed sequence for Vietnamese hospitals: train clinical staff first, build specialty-level data lakes second, and only then develop and deploy AI, with every step tied to legislation now in force.</p>
+  </div>
+  <aside class="stamp">
+    <p class="eyebrow"><span class="vi">Mốc tuân thủ y tế · QĐ 33/2026/QĐ-TTg</span><span class="en">Healthcare deadline · Decision 33/2026/QĐ-TTg</span></p>
+    <strong><span class="vi">01/9/2027</span><span class="en">1 Sep 2027</span></strong>
+    <p class="vi">Hạn hoàn thành nghĩa vụ cho hệ thống AI rủi ro cao trong y tế đã vận hành trước 15/8/2026. Hệ thống đưa vào sau ngày này phải tuân thủ ngay khi triển khai.</p>
+    <p class="en">Deadline for high-risk healthcare AI systems already in operation before 15 Aug 2026 to meet all obligations. Systems deployed after that date must comply from go-live.</p>
+  </aside>
+</section>
+
+<div class="chain" role="list">
+  <div role="listitem">
+    <span class="n">1</span>
+    <h3><span class="vi">Bác sĩ, nhân viên y tế hiểu AI</span><span class="en">Clinicians and staff understand AI</span></h3>
+    <p class="desc vi">Hiểu AI làm được gì, sai ở đâu, ai chịu trách nhiệm. Không có bước này, mọi hệ thống AI về sau sẽ bị dùng sai hoặc không được dùng.</p>
+    <p class="desc en">Know what AI can do, where it fails, and who is accountable. Skip this and every later system will be misused or ignored.</p>
+    <p class="gate vi"><b>Cổng sang bước 2:</b> ≥80% nhân sự lâm sàng mục tiêu hoàn thành mô-đun nền; đã có Hội đồng AI và người phụ trách bảo vệ dữ liệu cá nhân.</p>
+    <p class="gate en"><b>Gate to step 2:</b> ≥80% of target clinical staff complete the foundation module; an AI Committee and a personal data protection officer are in place.</p>
+  </div>
+  <div role="listitem">
+    <span class="n">2</span>
+    <h3><span class="vi">Kho data lake theo chuyên khoa, theo bài toán</span><span class="en">Data lakes by specialty and use case</span></h3>
+    <p class="desc vi">Dữ liệu gom theo từng chuyên khoa và từng vấn đề vận hành, chuẩn hóa mã, khử định danh, có phân quyền và nhật ký truy cập.</p>
+    <p class="desc en">Data organised per specialty and per operational problem, with standard coding, de-identification, role-based access and audit logs.</p>
+    <p class="gate vi"><b>Cổng sang bước 3:</b> mỗi bài toán có bộ dữ liệu được đánh giá chất lượng, có căn cứ xử lý hợp pháp và đánh giá tác động xử lý dữ liệu cá nhân.</p>
+    <p class="gate en"><b>Gate to step 3:</b> each use case has a quality-assessed dataset, a lawful processing basis and a personal data processing impact assessment.</p>
+  </div>
+  <div role="listitem">
+    <span class="n">3</span>
+    <h3><span class="vi">Phát triển AI tuân thủ pháp luật Việt Nam</span><span class="en">Develop AI compliant with Vietnamese law</span></h3>
+    <p class="desc vi">Phân loại rủi ro trước khi dùng, kiểm định trên dữ liệu tại chỗ, chạy song song trước khi ra quyết định thật, giám sát và báo cáo sự cố.</p>
+    <p class="desc en">Classify risk before use, validate on local data, run in shadow mode before real decisions, then monitor and report incidents.</p>
+    <p class="gate vi"><b>Điều kiện vận hành:</b> hồ sơ phân loại rủi ro, kết quả kiểm định nội bộ, quy trình con người can thiệp, kênh báo cáo sự cố.</p>
+    <p class="gate en"><b>Go-live conditions:</b> risk classification file, local validation report, human-override procedure, incident reporting channel.</p>
+  </div>
+</div>
+
+<div class="body">
+  <nav class="toc" aria-label="Contents">
+    <p class="eyebrow"><span class="vi">Mục lục</span><span class="en">Contents</span></p>
+    <a href="#phaply"><span class="vi">Khung pháp lý</span><span class="en">Legal framework</span></a>
+    <a href="#ruiro"><span class="vi">Phân loại rủi ro</span><span class="en">Risk screening</span></a>
+    <a href="#buoc1"><span class="vi">Bước 1 · Đào tạo</span><span class="en">Step 1 · Training</span></a>
+    <a href="#buoc2"><span class="vi">Bước 2 · Data lake</span><span class="en">Step 2 · Data lake</span></a>
+    <a href="#buoc3"><span class="vi">Bước 3 · Phát triển</span><span class="en">Step 3 · Development</span></a>
+    <a href="#lotrinh"><span class="vi">Lộ trình 24 tháng</span><span class="en">24-month roadmap</span></a>
+    <a href="#daoduc"><span class="vi">Đạo đức AI</span><span class="en">AI ethics</span></a>
+    <a href="#thangthan"><span class="vi">Nói thẳng</span><span class="en">Plain truths</span></a>
+    <a href="#nguon"><span class="vi">Nguồn</span><span class="en">Sources</span></a>
+  </nav>
+
+<main>
+
+<!-- LEGAL -->
+<section id="phaply">
+  <p class="eyebrow"><span class="vi">Khung pháp lý</span><span class="en">Legal framework</span></p>
+  <h2><span class="vi">Các mốc đã có hiệu lực và sắp tới</span><span class="en">Milestones in force and ahead</span></h2>
+  <p class="lede vi">Chỉ liệt kê văn bản tác động trực tiếp tới AI trong bệnh viện. Nhãn trạng thái: <span class="chip live">Đang hiệu lực</span> đã kiểm chứng qua nguồn công bố, <span class="chip draft">Dự thảo</span> chưa có giá trị bắt buộc, <span class="chip check">Đối chiếu bản gốc</span> chưa kiểm tra lại văn bản gốc trong lần cập nhật này.</p>
+  <p class="lede en">Only instruments that directly affect hospital AI. Status labels: <span class="chip live">In force</span> verified against published sources, <span class="chip draft">Draft</span> not yet binding, <span class="chip check">Verify original</span> original text not re-checked in this update.</p>
+
+  <div class="tl sheet">
+    <div class="tl-row"><div class="tl-date">01/7/2025</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc"><span class="vi">Luật Dữ liệu 60/2024/QH15</span><span class="en">Data Law 60/2024/QH15</span></span><span class="chip check"><span class="vi">Đối chiếu bản gốc</span><span class="en">Verify original</span></span></div>
+      <p class="vi">Khung chung về dữ liệu số, dữ liệu dùng chung, cơ sở dữ liệu quốc gia. Nền cho việc chia sẻ dữ liệu giữa các cơ sở.</p>
+      <p class="en">General framework for digital data, shared data and national databases; the basis for data sharing between facilities.</p></div></div>
+    <div class="tl-row"><div class="tl-date">21/7/2025</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc">TT 13/2025/TT-BYT</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Hướng dẫn triển khai hồ sơ bệnh án điện tử, thay TT 46/2018/TT-BYT. Bệnh viện phải hoàn thành chậm nhất 30/9/2025. EMR là nguồn dữ liệu gốc của mọi data lake lâm sàng.</p>
+      <p class="en">Ministry of Health circular on electronic medical records, replacing Circular 46/2018. Hospitals had to complete EMR by 30 Sep 2025. EMR is the primary source for every clinical data lake.</p></div></div>
+    <div class="tl-row key"><div class="tl-date">01/01/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc"><span class="vi">Luật BVDLCN 91/2025/QH15</span><span class="en">PDP Law 91/2025/QH15</span></span><span class="doc">NĐ 356/2025/NĐ-CP</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Tình trạng sức khỏe là dữ liệu cá nhân nhạy cảm. Bệnh viện phải phân quyền giới hạn truy cập, có quy trình xử lý và biện pháp bảo mật, chỉ định nhân sự hoặc bộ phận bảo vệ dữ liệu cá nhân đã qua đào tạo. Không cung cấp dữ liệu sức khỏe cho bên thứ ba là tổ chức bảo hiểm khi chưa có yêu cầu bằng văn bản của chủ thể, trừ trường hợp luật định.</p>
+      <p class="en">Health status is sensitive personal data. Hospitals must restrict access by role, define processing procedures and security measures, and appoint trained data protection staff or a unit. Health data may not be passed to insurers or other third-party care providers without the data subject's written request, except where the law provides.</p></div></div>
+    <div class="tl-row"><div class="tl-date">28/02/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc">QĐ 367/QĐ-TTg</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Kế hoạch triển khai thi hành Luật Trí tuệ nhân tạo.</p>
+      <p class="en">Prime Minister's implementation plan for the AI Law.</p></div></div>
+    <div class="tl-row key"><div class="tl-date">01/3/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc seal"><span class="vi">Luật Trí tuệ nhân tạo 134/2025/QH15</span><span class="en">AI Law 134/2025/QH15</span></span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">35 điều, quản lý theo 3 mức rủi ro. Nguyên tắc: lấy con người làm trung tâm, AI phục vụ và không thay thế thẩm quyền, trách nhiệm của con người. Nhà cung cấp nước ngoài có hệ thống rủi ro cao phải có đầu mối hợp pháp tại Việt Nam.</p>
+      <p class="en">35 articles, three risk tiers. Principle: human-centred; AI serves people and does not replace human authority or accountability. Foreign providers of high-risk systems need a legal point of contact in Vietnam.</p></div></div>
+    <div class="tl-row"><div class="tl-date">09/3/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc">QĐ 586/QĐ-BYT</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Kế hoạch triển khai hồ sơ bệnh án điện tử tại các cơ sở khám chữa bệnh. Bộ Y tế yêu cầu triển khai thực chất, không chỉ công bố.</p>
+      <p class="en">MoH plan for EMR rollout across facilities, requiring real use rather than declared compliance.</p></div></div>
+    <div class="tl-row key"><div class="tl-date">01/5/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc seal">NĐ 142/2026/NĐ-CP</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Hướng dẫn Luật AI. Phân loại rủi ro bắt buộc trước khi đưa vào sử dụng (Điều 5); tiêu chí mức rủi ro (Điều 6–12); đánh giá sự phù hợp cho hệ thống rủi ro cao; mã định danh hệ thống AI; báo cáo sự cố và báo cáo định kỳ; gắn nhãn nội dung do AI tạo (Điều 18); cơ chế thử nghiệm có kiểm soát.</p>
+      <p class="en">Implementing decree for the AI Law: mandatory risk classification before use (Art. 5); risk-tier criteria (Arts. 6–12); conformity assessment for high-risk systems; AI system identifiers; incident and periodic reporting; labelling of AI-generated content (Art. 18); regulatory sandbox.</p></div></div>
+    <div class="tl-row"><div class="tl-date">25/6/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc"><span class="vi">Bộ tiêu chí đánh giá AI y tế</span><span class="en">Healthcare AI evaluation criteria</span></span><span class="chip draft"><span class="vi">Dự thảo</span><span class="en">Draft</span></span></div>
+      <p class="vi">Trung tâm Thông tin y tế Quốc gia lấy ý kiến dự thảo Bộ tiêu chí tham chiếu chuyên môn đánh giá sản phẩm, giải pháp AI trong y tế, định hướng nâng lên thành Thông tư. Đây là văn bản chuyên ngành bệnh viện nên theo dõi sát nhất.</p>
+      <p class="en">The National Health Information Center consulted on draft professional reference criteria for evaluating healthcare AI products, intended to become a MoH circular. This is the sector instrument hospitals should track most closely.</p></div></div>
+    <div class="tl-row"><div class="tl-date">01/7/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc">NĐ 225/2026/NĐ-CP</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Bộ Khoa học và Công nghệ được bổ sung chức năng quản lý nhà nước về AI. Bộ Y tế giữ vai trò quản lý chuyên ngành; nguyên tắc không trùng lặp kiểm tra.</p>
+      <p class="en">The Ministry of Science and Technology becomes the state regulator for AI; the MoH remains the sector regulator, with no duplicated inspections.</p></div></div>
+    <div class="tl-row key"><div class="tl-date">15/8/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc seal">QĐ 33/2026/QĐ-TTg</span><span class="chip live"><span class="vi">Đang hiệu lực</span><span class="en">In force</span></span></div>
+      <p class="vi">Danh mục hệ thống AI rủi ro cao ở 6 lĩnh vực. Trong y tế, danh mục hiện chỉ gồm hệ thống AI hỗ trợ phẫu thuật và rô-bốt phẫu thuật dùng AI điều khiển tự động.</p>
+      <p class="en">List of high-risk AI systems across six sectors. In healthcare it currently covers only AI-assisted surgery and surgical robots under autonomous AI control.</p></div></div>
+    <div class="tl-row future"><div class="tl-date">10/2026</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc"><span class="vi">Luật sửa 6 luật lĩnh vực y tế</span><span class="en">Omnibus amendment of 6 health laws</span></span><span class="chip draft"><span class="vi">Trình Quốc hội</span><span class="en">Before National Assembly</span></span></div>
+      <p class="vi">Bao gồm Luật Khám bệnh, chữa bệnh. Cần theo dõi điều khoản về trách nhiệm người hành nghề khi dùng công cụ số.</p>
+      <p class="en">Includes the Law on Medical Examination and Treatment. Watch for provisions on practitioner liability when using digital tools.</p></div></div>
+    <div class="tl-row future key"><div class="tl-date">01/9/2027</div><div class="tl-axis"></div><div class="tl-body"><div class="top"><span class="doc seal"><span class="vi">Hạn chuyển tiếp y tế</span><span class="en">Healthcare transition deadline</span></span></div>
+      <p class="vi">Hệ thống AI rủi ro cao trong y tế đã vận hành trước 15/8/2026 phải hoàn thành nghĩa vụ tuân thủ. Trong thời gian chuyển tiếp vẫn được hoạt động, trừ khi cơ quan có thẩm quyền yêu cầu tạm dừng.</p>
+      <p class="en">High-risk healthcare AI in operation before 15 Aug 2026 must be fully compliant. Systems may keep running during transition unless an authority orders suspension.</p></div></div>
+  </div>
+
+  <div class="straight">
+    <b><span class="vi">Điểm dễ hiểu sai</span><span class="en">Common misreading</span></b>
+    <p class="vi">Danh mục rủi ro cao trong y tế hiện rất hẹp, nên phần lớn AI quản trị vận hành (dự báo giường, lịch trực, bảo trì thiết bị, tồn kho dược) không nằm trong danh mục. Điều đó không có nghĩa là không có nghĩa vụ: vẫn phải tự phân loại rủi ro trước khi dùng, minh bạch, có con người giám sát, và tuân thủ trọn vẹn Luật Bảo vệ dữ liệu cá nhân vì dữ liệu đầu vào là dữ liệu sức khỏe. Phần mềm AI có mục đích chẩn đoán còn có thể bị quản lý như trang thiết bị y tế theo <span class="doc">NĐ 98/2021/NĐ-CP</span> và văn bản sửa đổi (<span class="chip check">Đối chiếu bản gốc</span>).</p>
+    <p class="en">The healthcare high-risk list is narrow, so most operational AI (bed forecasting, rostering, equipment maintenance, pharmacy stock) is not on it. That does not remove obligations: hospitals must still self-classify before use, be transparent, keep human oversight, and comply fully with the Personal Data Protection Law because the inputs are health data. AI software with a diagnostic purpose may also be regulated as a medical device under <span class="doc">Decree 98/2021/NĐ-CP</span> as amended (<span class="chip check">Verify original</span>).</p>
+  </div>
+</section>
+
+<!-- RISK -->
+<section id="ruiro">
+  <p class="eyebrow"><span class="vi">Công cụ sàng lọc</span><span class="en">Screening tool</span></p>
+  <h2><span class="vi">Phân loại sơ bộ ứng dụng AI trong bệnh viện</span><span class="en">Preliminary risk screening of hospital AI uses</span></h2>
+  <p class="lede vi">Chọn một ứng dụng để xem mức rủi ro ước lượng và việc phải làm. Chỉ mục rô-bốt phẫu thuật được xác định rõ trong danh mục; các mục khác là nhận định sơ bộ, bệnh viện phải tự phân loại theo Điều 6–12 NĐ 142/2026 và lưu hồ sơ.</p>
+  <p class="lede en">Pick a use case to see its estimated risk tier and required actions. Only surgical robotics is explicitly listed; the others are preliminary estimates, and hospitals must self-classify under Arts. 6–12 of Decree 142/2026 and keep the file.</p>
+  <div class="clf sheet">
+    <div class="clf-list" id="clfList" role="group" aria-label="AI use cases"></div>
+    <div class="clf-out" id="clfOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- STEP 1 -->
+<section id="buoc1">
+  <p class="eyebrow"><span class="vi">Bước 1 · Bác sĩ, nhân viên y tế hiểu AI</span><span class="en">Step 1 · Clinicians and staff understand AI</span></p>
+  <h2><span class="vi">Chương trình năng lực AI theo vai trò</span><span class="en">Role-based AI competency programme</span></h2>
+  <p class="lede vi">Luật AI đặt trách nhiệm cuối cùng ở con người. Người phải chịu trách nhiệm cần hiểu đủ để nghi ngờ đúng lúc. Số giờ dưới đây là đề xuất tối thiểu cho năm đầu, không phải quy định.</p>
+  <p class="lede en">The AI Law leaves final accountability with people, so those accountable must understand enough to doubt the system at the right moment. Hours below are a recommended first-year minimum, not a legal requirement.</p>
+  <div class="roles">
+    <div class="sheet role"><h3><span class="vi">Ban giám đốc</span><span class="en">Hospital leadership</span></h3><span class="hrs"><span class="vi">8 giờ</span><span class="en">8 hours</span></span>
+      <ul class="vi"><li>Nghĩa vụ bên triển khai theo Luật AI và NĐ 142</li><li>Thẩm định đề xuất AI: bài toán, chi phí, rủi ro</li><li>Thành lập Hội đồng AI, quy chế phê duyệt</li></ul>
+      <ul class="en"><li>Deployer obligations under the AI Law and Decree 142</li><li>Appraising AI proposals: problem, cost, risk</li><li>Setting up an AI Committee and approval rules</li></ul></div>
+    <div class="sheet role"><h3><span class="vi">Bác sĩ lâm sàng</span><span class="en">Physicians</span></h3><span class="hrs"><span class="vi">12 giờ</span><span class="en">12 hours</span></span>
+      <ul class="vi"><li>Đọc độ nhạy, độ đặc hiệu, giá trị dự báo theo tỷ lệ mắc tại chỗ</li><li>Thiên lệch tự động hóa, khi nào bỏ qua gợi ý AI</li><li>Ảo giác của mô hình ngôn ngữ, kiểm chứng trích dẫn</li></ul>
+      <ul class="en"><li>Reading sensitivity, specificity and predictive value at local prevalence</li><li>Automation bias and when to override AI</li><li>LLM hallucination and citation checking</li></ul></div>
+    <div class="sheet role"><h3><span class="vi">Điều dưỡng, kỹ thuật viên</span><span class="en">Nurses and technicians</span></h3><span class="hrs"><span class="vi">6 giờ</span><span class="en">6 hours</span></span>
+      <ul class="vi"><li>Nhập liệu đúng chuẩn vì dữ liệu nuôi mô hình</li><li>Nhận biết cảnh báo sai, quy trình báo sự cố</li><li>Giải thích cho người bệnh khi có AI tham gia</li></ul>
+      <ul class="en"><li>Standard data entry, since data feeds the models</li><li>Spotting false alerts and reporting incidents</li><li>Explaining AI involvement to patients</li></ul></div>
+    <div class="sheet role"><h3><span class="vi">CNTT, kỹ sư dữ liệu</span><span class="en">IT and data engineers</span></h3><span class="hrs"><span class="vi">24 giờ</span><span class="en">24 hours</span></span>
+      <ul class="vi"><li>HL7 FHIR R4, DICOM, ICD-10, LOINC</li><li>Khử định danh, phân quyền, nhật ký truy cập</li><li>Giám sát drift, quản lý phiên bản mô hình</li></ul>
+      <ul class="en"><li>HL7 FHIR R4, DICOM, ICD-10, LOINC</li><li>De-identification, access control, audit logs</li><li>Drift monitoring, model versioning</li></ul></div>
+    <div class="sheet role"><h3><span class="vi">Phòng Quản lý chất lượng</span><span class="en">Quality management</span></h3><span class="hrs"><span class="vi">10 giờ</span><span class="en">10 hours</span></span>
+      <ul class="vi"><li>Đưa sự cố AI vào hệ thống báo cáo sự cố y khoa</li><li>Chỉ số giám sát sau triển khai</li><li>Kiểm tra định kỳ hồ sơ tuân thủ</li></ul>
+      <ul class="en"><li>Adding AI incidents to the patient-safety reporting system</li><li>Post-deployment monitoring indicators</li><li>Periodic compliance file audits</li></ul></div>
+    <div class="sheet role"><h3><span class="vi">Người bảo vệ dữ liệu cá nhân</span><span class="en">Data protection officer</span></h3><span class="hrs"><span class="vi">16 giờ</span><span class="en">16 hours</span></span>
+      <ul class="vi"><li>Luật 91/2025 và NĐ 356/2025 cho dữ liệu sức khỏe</li><li>Đánh giá tác động xử lý dữ liệu cá nhân</li><li>Đồng ý của người bệnh, chuyển dữ liệu cho nhà cung cấp</li></ul>
+      <ul class="en"><li>Law 91/2025 and Decree 356/2025 for health data</li><li>Personal data processing impact assessment</li><li>Patient consent and data transfers to vendors</li></ul></div>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section id="buoc2">
+  <p class="eyebrow"><span class="vi">Bước 2 · Kho data lake</span><span class="en">Step 2 · Data lake</span></p>
+  <h2><span class="vi">Data lake theo chuyên khoa và theo bài toán</span><span class="en">Data lakes by specialty and use case</span></h2>
+  <p class="lede vi">Không gom toàn bộ dữ liệu bệnh viện vào một hồ rồi mới nghĩ dùng gì. Mỗi miền dữ liệu phục vụ một nhóm bài toán cụ thể, có chủ sở hữu là khoa lâm sàng hoặc phòng chức năng, và chỉ ra khỏi vùng định danh sau khi đã khử định danh.</p>
+  <p class="lede en">Do not pour every hospital record into one lake and decide later. Each data domain serves a defined set of problems, is owned by a clinical department or functional office, and leaves the identified zone only after de-identification.</p>
+
+  <div class="sheet lake-svg">
+    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three-zone data lake architecture with governance layer">
+      <style>
+        .t{font-family:var(--f-body);font-size:13px;fill:var(--ink)}
+        .s{font-family:var(--f-mono);font-size:11px;fill:var(--ink-2)}
+        .h{font-family:var(--f-display);font-size:15px;font-weight:700;fill:var(--ink)}
+        .box{fill:var(--sheet);stroke:var(--rule);stroke-width:1.2}
+        .zone{fill:var(--tint);stroke:var(--rule)}
+        .gov{fill:var(--seal-tint);stroke:var(--seal);stroke-width:1.2}
+        .arr{stroke:var(--navy);stroke-width:1.6;fill:none}
+        .ah{fill:var(--navy)}
+        .gh{font-family:var(--f-display);font-size:15px;font-weight:700;fill:var(--seal)}
+      </style>
+      <text class="h" x="20" y="28"><tspan class="vi">Nguồn</tspan><tspan class="en">Sources</tspan></text>
+      <rect class="box" x="20" y="44" width="150" height="34" rx="4"/><text class="t" x="32" y="66">HIS · EMR</text>
+      <rect class="box" x="20" y="86" width="150" height="34" rx="4"/><text class="t" x="32" y="108">LIS · RIS-PACS</text>
+      <rect class="box" x="20" y="128" width="150" height="34" rx="4"/><text class="t" x="32" y="150"><tspan class="vi">IoT thiết bị y tế</tspan><tspan class="en">Medical device IoT</tspan></text>
+      <rect class="box" x="20" y="170" width="150" height="34" rx="4"/><text class="t" x="32" y="192"><tspan class="vi">Dược · vật tư · BHYT</tspan><tspan class="en">Pharmacy · supplies · SHI</tspan></text>
+      <rect class="box" x="20" y="212" width="150" height="34" rx="4"/><text class="t" x="32" y="234"><tspan class="vi">Nhân sự · lịch trực</tspan><tspan class="en">Staff · rosters</tspan></text>
+      <path class="arr" d="M175 145 H215"/><polygon class="ah" points="215,140 225,145 215,150"/>
+
+      <rect class="zone" x="230" y="44" width="170" height="202" rx="6"/>
+      <text class="h" x="244" y="70"><tspan class="vi">Vùng thô</tspan><tspan class="en">Raw zone</tspan></text>
+      <text class="s" x="244" y="92"><tspan class="vi">dữ liệu gốc, có định danh</tspan><tspan class="en">source data, identified</tspan></text>
+      <text class="t" x="244" y="124"><tspan class="vi">Chỉ đọc, mã hóa</tspan><tspan class="en">Read-only, encrypted</tspan></text>
+      <text class="t" x="244" y="146"><tspan class="vi">Lưu tại Việt Nam</tspan><tspan class="en">Stored in Vietnam</tspan></text>
+      <text class="t" x="244" y="168"><tspan class="vi">Truy cập: CNTT + DPO</tspan><tspan class="en">Access: IT + DPO</tspan></text>
+      <text class="t" x="244" y="190"><tspan class="vi">Nhật ký mọi lần đọc</tspan><tspan class="en">Every read logged</tspan></text>
+      <path class="arr" d="M405 145 H445"/><polygon class="ah" points="445,140 455,145 445,150"/>
+
+      <rect class="zone" x="460" y="44" width="190" height="202" rx="6"/>
+      <text class="h" x="474" y="70"><tspan class="vi">Vùng chuẩn hóa</tspan><tspan class="en">Curated zone</tspan></text>
+      <text class="s" x="474" y="92"><tspan class="vi">khử định danh, gán mã</tspan><tspan class="en">de-identified, coded</tspan></text>
+      <text class="t" x="474" y="124">FHIR R4 · ICD-10</text>
+      <text class="t" x="474" y="146">LOINC · DICOM</text>
+      <text class="t" x="474" y="168"><tspan class="vi">Đo chất lượng dữ liệu</tspan><tspan class="en">Data quality metrics</tspan></text>
+      <text class="t" x="474" y="190"><tspan class="vi">Mã giả danh có khóa</tspan><tspan class="en">Keyed pseudonyms</tspan></text>
+      <path class="arr" d="M655 145 H695"/><polygon class="ah" points="695,140 705,145 695,150"/>
+
+      <rect class="zone" x="710" y="44" width="170" height="202" rx="6"/>
+      <text class="h" x="724" y="70"><tspan class="vi">Vùng bài toán</tspan><tspan class="en">Use-case zone</tspan></text>
+      <text class="s" x="724" y="92"><tspan class="vi">một miền, một chủ sở hữu</tspan><tspan class="en">one domain, one owner</tspan></text>
+      <text class="t" x="724" y="124"><tspan class="vi">Vận hành giường</tspan><tspan class="en">Bed operations</tspan></text>
+      <text class="t" x="724" y="146"><tspan class="vi">Thiết bị y tế</tspan><tspan class="en">Medical devices</tspan></text>
+      <text class="t" x="724" y="168"><tspan class="vi">Tim mạch · Nội soi</tspan><tspan class="en">Cardiology · Endoscopy</tspan></text>
+      <text class="t" x="724" y="190"><tspan class="vi">Dịch tễ · KSNK</tspan><tspan class="en">Epidemiology · IPC</tspan></text>
+      <text class="t" x="724" y="212"><tspan class="vi">Dược · vật tư</tspan><tspan class="en">Pharmacy · supplies</tspan></text>
+
+      <rect class="gov" x="230" y="270" width="650" height="70" rx="6"/>
+      <text class="gh" x="246" y="296"><tspan class="vi">Lớp quản trị dữ liệu, áp lên cả ba vùng</tspan><tspan class="en">Data governance layer across all three zones</tspan></text>
+      <text class="t" x="246" y="322"><tspan class="vi">Căn cứ xử lý và đồng ý · Phân quyền theo vai trò · Đánh giá tác động · Danh mục dữ liệu · Kiểm toán truy cập</tspan><tspan class="en">Legal basis and consent · Role-based access · Impact assessment · Data catalogue · Access audit</tspan></text>
+    </svg>
+  </div>
+
+  <div class="tabs" role="tablist" id="lakeTabs"></div>
+  <div class="sheet domain" id="lakeOut" role="tabpanel"></div>
+
+  <div class="straight">
+    <b><span class="vi">Chuẩn mã hóa</span><span class="en">Coding standards</span></b>
+    <p class="vi">ICD-10 theo hướng dẫn mã hóa của Bộ Y tế và dữ liệu đầu ra theo chuẩn XML giám định BHYT là bắt buộc trong vận hành hiện tại, nên dùng làm trục chuẩn hóa đầu tiên. SNOMED CT cần kiểm tra điều kiện giấy phép sử dụng tại Việt Nam trước khi đưa vào hệ thống sản xuất (<span class="chip check">Đối chiếu bản gốc</span>).</p>
+    <p class="en">ICD-10 per MoH coding guidance and the XML output format for Social Health Insurance claims are already mandatory in daily operations, so use them as the first normalisation axis. Check SNOMED CT licensing terms for Vietnam before using it in production (<span class="chip check">Verify original</span>).</p>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section id="buoc3">
+  <p class="eyebrow"><span class="vi">Bước 3 · Phát triển AI tuân thủ</span><span class="en">Step 3 · Compliant AI development</span></p>
+  <h2><span class="vi">Vòng đời một hệ thống AI trong bệnh viện</span><span class="en">Lifecycle of a hospital AI system</span></h2>
+  <p class="lede vi">Tám bước theo thứ tự. Mỗi bước để lại một hồ sơ; hồ sơ này chính là bằng chứng tuân thủ khi cơ quan quản lý kiểm tra.</p>
+  <p class="lede en">Eight steps in order. Each leaves a record, and those records are your evidence of compliance at inspection.</p>
+  <div class="sheet life">
+    <div><span class="k"><span class="vi">01 · Đề xuất</span><span class="en">01 · Proposal</span></span><h3><span class="vi">Bài toán và chủ sở hữu</span><span class="en">Problem and owner</span></h3><p class="vi">Khoa/phòng nêu vấn đề vận hành có số đo hiện tại.</p><p class="en">A department states an operational problem with a current baseline.</p><span class="out"><span class="vi">Hồ sơ: phiếu đề xuất, chỉ số nền</span><span class="en">Record: proposal form, baseline</span></span></div>
+    <div><span class="k"><span class="vi">02 · Phân loại</span><span class="en">02 · Classify</span></span><h3><span class="vi">Mức rủi ro</span><span class="en">Risk tier</span></h3><p class="vi">Tự phân loại trước khi dùng theo NĐ 142; kiểm tra có thuộc QĐ 33 và có là thiết bị y tế không.</p><p class="en">Self-classify before use under Decree 142; check Decision 33 and medical-device status.</p><span class="out"><span class="vi">Hồ sơ: phân loại rủi ro</span><span class="en">Record: risk classification</span></span></div>
+    <div><span class="k"><span class="vi">03 · Dữ liệu</span><span class="en">03 · Data</span></span><h3><span class="vi">Căn cứ và tác động</span><span class="en">Basis and impact</span></h3><p class="vi">Căn cứ xử lý dữ liệu sức khỏe, đánh giá tác động, hợp đồng với nhà cung cấp.</p><p class="en">Legal basis for health data, impact assessment, vendor contract.</p><span class="out"><span class="vi">Hồ sơ: đánh giá tác động xử lý DLCN</span><span class="en">Record: data processing impact assessment</span></span></div>
+    <div><span class="k"><span class="vi">04 · Kiểm định</span><span class="en">04 · Validate</span></span><h3><span class="vi">Trên dữ liệu tại chỗ</span><span class="en">On local data</span></h3><p class="vi">Đo hiệu năng trên quần thể bệnh viện, tách theo tuổi, giới, khoa.</p><p class="en">Measure performance on the hospital's own population, split by age, sex and department.</p><span class="out"><span class="vi">Hồ sơ: báo cáo kiểm định</span><span class="en">Record: validation report</span></span></div>
+    <div><span class="k"><span class="vi">05 · Chạy song song</span><span class="en">05 · Shadow mode</span></span><h3><span class="vi">Không ảnh hưởng quyết định</span><span class="en">No effect on decisions</span></h3><p class="vi">AI chạy ngầm 4–8 tuần, so với quyết định thực của con người.</p><p class="en">AI runs silently for 4–8 weeks and is compared against actual human decisions.</p><span class="out"><span class="vi">Hồ sơ: báo cáo chạy song song</span><span class="en">Record: shadow-run report</span></span></div>
+    <div><span class="k"><span class="vi">06 · Thí điểm</span><span class="en">06 · Pilot</span></span><h3><span class="vi">Có giám sát</span><span class="en">Supervised</span></h3><p class="vi">Một khoa, con người xác nhận mọi đầu ra, có nút từ chối gợi ý.</p><p class="en">One department; a person confirms every output and can reject any suggestion.</p><span class="out"><span class="vi">Hồ sơ: quy trình can thiệp</span><span class="en">Record: override procedure</span></span></div>
+    <div><span class="k"><span class="vi">07 · Vận hành</span><span class="en">07 · Operate</span></span><h3><span class="vi">Giám sát liên tục</span><span class="en">Continuous monitoring</span></h3><p class="vi">Theo dõi trôi dữ liệu, báo cáo sự cố, báo cáo định kỳ theo NĐ 142.</p><p class="en">Track data drift, report incidents, file periodic reports under Decree 142.</p><span class="out"><span class="vi">Hồ sơ: nhật ký sự cố, báo cáo định kỳ</span><span class="en">Record: incident log, periodic reports</span></span></div>
+    <div><span class="k"><span class="vi">08 · Thay thế</span><span class="en">08 · Retire</span></span><h3><span class="vi">Dừng có kế hoạch</span><span class="en">Planned shutdown</span></h3><p class="vi">Khi hiệu năng giảm dưới ngưỡng hoặc quy trình đổi, có phương án quay về thủ công.</p><p class="en">When performance falls below threshold or workflows change, revert to a manual fallback.</p><span class="out"><span class="vi">Hồ sơ: biên bản ngừng sử dụng</span><span class="en">Record: decommissioning minutes</span></span></div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="lotrinh">
+  <p class="eyebrow"><span class="vi">Lộ trình đề xuất</span><span class="en">Proposed roadmap</span></p>
+  <h2><span class="vi">24 tháng, từ Q4/2026 đến Q3/2028</span><span class="en">24 months, Q4 2026 to Q3 2028</span></h2>
+  <p class="lede vi">Lộ trình cho một bệnh viện tuyến tỉnh đã có EMR. Mốc 01/9/2027 chỉ ràng buộc hệ thống rủi ro cao; đặt nó làm mốc hoàn tất hồ sơ tuân thủ cho mọi hệ thống là cách an toàn hơn.</p>
+  <p class="lede en">For a provincial hospital that already runs EMR. The 1 Sep 2027 deadline binds only high-risk systems; using it as the compliance-file deadline for every system is the safer choice.</p>
+  <div class="legend">
+    <span><i style="background:var(--navy)"></i><span class="vi">Con người</span><span class="en">People</span></span>
+    <span><i style="background:var(--ok)"></i><span class="vi">Dữ liệu</span><span class="en">Data</span></span>
+    <span><i style="background:var(--warn)"></i><span class="vi">AI</span><span class="en">AI</span></span>
+    <span><i style="background:var(--seal)"></i><span class="vi">Tuân thủ</span><span class="en">Compliance</span></span>
+  </div>
+  <div class="sheet road-wrap">
+    <div class="road">
+      <div class="road-row road-head"><span></span><span>Q4/26</span><span>Q1/27</span><span>Q2/27</span><span>Q3/27</span><span>Q4/27</span><span>Q1/28</span><span>Q2/28</span><span>Q3/28</span></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Hội đồng AI, DPO</span><span class="en">AI Committee, DPO</span></span><div class="bar b1" style="grid-column:2 / 3"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Đào tạo nền</span><span class="en">Foundation training</span></span><div class="bar b1" style="grid-column:2 / 4"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Đào tạo nâng cao</span><span class="en">Advanced training</span></span><div class="bar b1 soft" style="grid-column:4 / 10"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Kiểm kê, chất lượng EMR</span><span class="en">EMR inventory, quality</span></span><div class="bar b2" style="grid-column:2 / 4"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Data lake miền 1–2</span><span class="en">Data lake domains 1–2</span></span><div class="bar b2" style="grid-column:3 / 6"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Data lake miền 3–5</span><span class="en">Data lake domains 3–5</span></span><div class="bar b2" style="grid-column:6 / 10"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">AI vận hành: thí điểm</span><span class="en">Operational AI: pilot</span></span><div class="bar b3" style="grid-column:5 / 7"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">AI vận hành: mở rộng</span><span class="en">Operational AI: scale</span></span><div class="bar b3" style="grid-column:7 / 10"></div></div>
+      <div class="road-row"><span class="lbl"><span class="vi">Hồ sơ tuân thủ</span><span class="en">Compliance files</span></span><div class="bar b4" style="grid-column:3 / 6"></div></div>
+    </div>
+  </div>
+  <p class="lede vi" style="font-size:.9rem">Thứ tự miền gợi ý: bắt đầu từ vận hành giường và thiết bị y tế vì dữ liệu ít nhạy cảm hơn, đo được hiệu quả bằng tiền và thời gian, rồi mới tới miền lâm sàng.</p>
+  <p class="lede en" style="font-size:.9rem">Suggested domain order: start with bed operations and medical equipment, where data is less sensitive and gains are measurable in money and time, then move to clinical domains.</p>
+</section>
+
+<!-- ETHICS -->
+<section id="daoduc">
+  <p class="eyebrow"><span class="vi">Đạo đức AI</span><span class="en">AI ethics</span></p>
+  <h2><span class="vi">Sáu nguyên tắc WHO, chuyển thành kiểm soát cụ thể</span><span class="en">WHO's six principles as concrete controls</span></h2>
+  <p class="lede vi">WHO đặt sáu nguyên tắc cho AI y tế trong hướng dẫn năm 2021 về đạo đức và quản trị AI trong y tế. Mỗi nguyên tắc dưới đây đi kèm căn cứ trong pháp luật Việt Nam và một kiểm soát bệnh viện có thể kiểm tra được.</p>
+  <p class="lede en">WHO set six principles in its 2021 guidance on the ethics and governance of AI for health. Each is paired below with its basis in Vietnamese law and a control a hospital can audit.</p>
+  <div class="eth">
+    <div class="sheet"><h3><span class="vi">Bảo vệ quyền tự chủ</span><span class="en">Protect autonomy</span></h3><p class="vi">Luật AI: AI không thay thế thẩm quyền, trách nhiệm của con người.</p><p class="en">AI Law: AI does not replace human authority or accountability.</p><p class="ctl vi">Kiểm soát: mọi đầu ra lâm sàng có người ký xác nhận; người bệnh được biết khi có AI tham gia.</p><p class="ctl en">Control: every clinical output is signed off by a person; patients are told when AI is involved.</p></div>
+    <div class="sheet"><h3><span class="vi">An toàn và lợi ích công cộng</span><span class="en">Safety and public interest</span></h3><p class="vi">Luật AI, NĐ 142: báo cáo sự cố, quyền yêu cầu tạm dừng.</p><p class="en">AI Law, Decree 142: incident reporting and suspension powers.</p><p class="ctl vi">Kiểm soát: sự cố AI nằm trong hệ thống báo cáo sự cố y khoa, có ngưỡng dừng.</p><p class="ctl en">Control: AI incidents flow into patient-safety reporting with defined stop thresholds.</p></div>
+    <div class="sheet"><h3><span class="vi">Minh bạch, giải thích được</span><span class="en">Transparency, explainability</span></h3><p class="vi">Luật AI: nghĩa vụ minh bạch; NĐ 142 Điều 18: gắn nhãn nội dung AI tạo.</p><p class="en">AI Law transparency duties; Decree 142 Art. 18 on labelling AI-generated content.</p><p class="ctl vi">Kiểm soát: thẻ mô tả mô hình cho mỗi hệ thống, gồm dữ liệu huấn luyện và giới hạn.</p><p class="ctl en">Control: a model card for every system, covering training data and limitations.</p></div>
+    <div class="sheet"><h3><span class="vi">Trách nhiệm giải trình</span><span class="en">Accountability</span></h3><p class="vi">Luật AI: phân định nhà cung cấp, bên triển khai, người sử dụng.</p><p class="en">AI Law distinguishes provider, deployer and user.</p><p class="ctl vi">Kiểm soát: hợp đồng ghi rõ trách nhiệm từng bên; mỗi hệ thống có một người chịu trách nhiệm.</p><p class="ctl en">Control: contracts spell out each party's duties; every system has one named owner.</p></div>
+    <div class="sheet"><h3><span class="vi">Công bằng, bao trùm</span><span class="en">Equity, inclusiveness</span></h3><p class="vi">Dữ liệu nước ngoài có thể không đại diện người bệnh Việt Nam.</p><p class="en">Foreign training data may not represent Vietnamese patients.</p><p class="ctl vi">Kiểm soát: báo cáo kiểm định tách theo nhóm tuổi, giới, khu vực; không triển khai nếu chênh lệch vượt ngưỡng.</p><p class="ctl en">Control: validation reports split by age, sex and region; no deployment if gaps exceed threshold.</p></div>
+    <div class="sheet"><h3><span class="vi">Bền vững, đáp ứng</span><span class="en">Responsiveness, sustainability</span></h3><p class="vi">Luật AI khuyến khích AI xanh, tiết kiệm tài nguyên.</p><p class="en">The AI Law promotes green, resource-efficient AI.</p><p class="ctl vi">Kiểm soát: đánh giá lại hằng năm; có phương án quay về quy trình thủ công.</p><p class="ctl en">Control: annual re-evaluation and a manual fallback for every system.</p></div>
+  </div>
+</section>
+
+<!-- PLAIN TRUTHS -->
+<section id="thangthan">
+  <p class="eyebrow"><span class="vi">Nói thẳng</span><span class="en">Plain truths</span></p>
+  <h2><span class="vi">Năm lý do dự án AI bệnh viện thất bại</span><span class="en">Five reasons hospital AI projects fail</span></h2>
+  <ul class="pit">
+    <li><b><span class="vi">EMR có nhưng không dùng được cho AI.</span><span class="en">EMR exists but is unusable for AI.</span></b><span class="vi">Nhiều bệnh viện công bố EMR để đạt hạn, nhưng trường dữ liệu tự do, mã ICD gán để thanh toán chứ không phản ánh lâm sàng. Đo chất lượng dữ liệu trước khi hứa bất kỳ mô hình nào.</span><span class="en">Many hospitals declared EMR to meet the deadline, but fields are free text and ICD codes are assigned for billing rather than clinical truth. Measure data quality before promising any model.</span></li>
+    <li><b><span class="vi">Mua AI trước khi có bài toán.</span><span class="en">Buying AI before defining the problem.</span></b><span class="vi">Bài toán phải có chỉ số nền đo được. Không có chỉ số nền thì không chứng minh được hiệu quả và không bảo vệ được ngân sách năm sau.</span><span class="en">Every problem needs a measurable baseline. Without one you cannot prove impact or defend next year's budget.</span></li>
+    <li><b><span class="vi">Nhà cung cấp mang dữ liệu đi.</span><span class="en">Vendors walk away with the data.</span></b><span class="vi">Hợp đồng phải ghi dữ liệu lưu ở đâu, ai được dùng để huấn luyện lại, xóa thế nào khi chấm dứt. Đây là nghĩa vụ của bệnh viện theo Luật 91/2025, không phải của nhà cung cấp.</span><span class="en">Contracts must state where data is stored, who may use it for retraining, and how it is deleted at termination. Under Law 91/2025 this is the hospital's obligation, not the vendor's.</span></li>
+    <li><b><span class="vi">Mô hình ngôn ngữ lớn trả lời tự tin nhưng sai.</span><span class="en">LLMs answer confidently and wrongly.</span></b><span class="vi">Tóm tắt bệnh án, trợ lý tra cứu phác đồ phải có kiểm chứng nguồn và đo tỷ lệ ảo giác trên bộ câu hỏi tiếng Việt chuyên khoa trước khi dùng.</span><span class="en">Record summarisers and guideline assistants need source verification and a measured hallucination rate on Vietnamese specialty question sets before use.</span></li>
+    <li><b><span class="vi">Không ai chịu trách nhiệm khi AI sai.</span><span class="en">No one is accountable when AI errs.</span></b><span class="vi">Luật AI không cho phép đẩy trách nhiệm sang máy. Nếu quy trình không nói rõ ai xác nhận, ai báo sự cố, hệ thống chưa sẵn sàng vận hành.</span><span class="en">The AI Law does not let responsibility shift to the machine. If the procedure does not say who confirms and who reports incidents, the system is not ready to go live.</span></li>
+  </ul>
+</section>
+
+<!-- SOURCES -->
+<section id="nguon">
+  <p class="eyebrow"><span class="vi">Nguồn</span><span class="en">Sources</span></p>
+  <h2><span class="vi">Văn bản và tài liệu tham chiếu</span><span class="en">Instruments and references</span></h2>
+  <ol class="src">
+    <li><a href="https://vneconomy.vn/luat-tri-tue-nhan-tao-se-co-hieu-luc-tu-ngay-132026.htm" target="_blank" rel="noopener">VnEconomy · Luật Trí tuệ nhân tạo có hiệu lực từ 01/3/2026</a></li>
+    <li><a href="https://luatvietan.vn/nghi-dinh-142-2026-nd-cp-huong-dan-luat-tri-tue-nhan-tao.html" target="_blank" rel="noopener">Luật Việt An · NĐ 142/2026/NĐ-CP</a></li>
+    <li><a href="https://moc.gov.vn/vn/tin-tuc/1305/93854/nguyen-tac-phan-loai-va-danh-gia-su-phu-hop-he-thong-tri-tue-nhan-tao.aspx" target="_blank" rel="noopener">Bộ Xây dựng · Phân loại và đánh giá sự phù hợp hệ thống AI</a></li>
+    <li><a href="https://lsvn.vn/danh-muc-he-thong-tri-tue-nhan-tao-co-rui-ro-cao-a175291.html" target="_blank" rel="noopener">Tạp chí Luật sư Việt Nam · QĐ 33/2026/QĐ-TTg</a></li>
+    <li><a href="https://pbgdpl.cantho.gov.vn/quan-ly-he-thong-tri-tue-nhan-tao-co-rui-ro-cao-trung-binh-va-thap" target="_blank" rel="noopener">Cổng PBGDPL Cần Thơ · Quản lý AI rủi ro cao, trung bình, thấp</a></li>
+    <li><a href="https://thuvienphapluat.vn/van-ban/Quyen-dan-su/Nghi-dinh-356-2025-ND-CP-huong-dan-Luat-Bao-ve-du-lieu-ca-nhan-687428.aspx" target="_blank" rel="noopener">Thư viện Pháp luật · NĐ 356/2025/NĐ-CP</a></li>
+    <li><a href="https://lsvn.vn/quy-dinh-ve-bao-ve-du-lieu-ca-nhan-trong-mot-so-hoat-dong-tu-nam-2026-a161847.html" target="_blank" rel="noopener">Tạp chí Luật sư Việt Nam · Dữ liệu sức khỏe theo Luật BVDLCN</a></li>
+    <li><a href="https://caselaw.vn/bai-viet/thong-tu-13-2025-tt-byt-huong-dan-trien-khai-ho-so-benh-an-dien-tu-tu-ngay-21-07-2025" target="_blank" rel="noopener">Caselaw · Thông tư 13/2025/TT-BYT</a></li>
+    <li><a href="https://nhic.vn/ung-dung-ai-y-te-va-giai-phap-ho-tro-ra-quyet-dinh-lam-sang-uptodate/" target="_blank" rel="noopener">NHIC · Dự thảo Bộ tiêu chí đánh giá AI y tế</a></li>
+    <li><a href="https://luatvietnam.vn/tri-tue-nhan-tao-3521-tag.html" target="_blank" rel="noopener">LuatVietnam · QĐ 367/QĐ-TTg, NĐ 225/2026/NĐ-CP</a></li>
+    <li><a href="https://yte.nghean.gov.vn/tin-chuyen-nganh/bo-y-te-thong-tin-ve-4-du-an-luat-trinh-quoc-hoi-va-nhieu-chinh-sach-y-te-tieu-bieu-quy-iv-2026-1060391?pageindex=0" target="_blank" rel="noopener">Sở Y tế Nghệ An · 4 dự án luật y tế, 10/2026</a></li>
+    <li><a href="https://www.who.int/publications/i/item/9789240029200" target="_blank" rel="noopener">WHO · Ethics and governance of artificial intelligence for health (2021)</a></li>
+  </ol>
+  <p class="lede vi" style="font-size:.86rem">Số điều khoản trích dẫn lấy từ nguồn công bố thứ cấp; trước khi đưa vào hồ sơ pháp lý chính thức cần đối chiếu Công báo hoặc Cơ sở dữ liệu quốc gia về văn bản pháp luật.</p>
+  <p class="lede en" style="font-size:.86rem">Article numbers come from secondary published sources; check the Official Gazette or the National Legal Database before using them in formal compliance files. English names of Vietnamese instruments are working translations, not official titles.</p>
+</section>
+
+</main>
+</div>
+
+<footer><span class="vi">Biên soạn: InnoHealth · Cập nhật 14/10/2026</span><span class="en">InnoHealth· Updated 14 Oct 2026</span></footer>
+</div>
+</div>
+
+<script>
+(function(){
+  var app=document.getElementById('app');
+  var lang='vi';
+
+  var cases=[
+    {id:"robot",tier:"high",
+     vi:{name:"Rô-bốt phẫu thuật dùng AI",label:"Rủi ro cao",basis:"Có tên trong danh mục y tế của QĐ 33/2026/QĐ-TTg.",tbyt:"Là trang thiết bị y tế, quản lý song song theo pháp luật TTBYT.",
+       duties:["Đánh giá sự phù hợp trước khi đưa vào sử dụng","Cơ chế giám sát, can thiệp của con người; quyền quyết định cuối cùng thuộc phẫu thuật viên","Minh bạch, xử lý và báo cáo sự cố theo Điều 11, 12 Luật AI","Đã vận hành trước 15/8/2026: hoàn thành nghĩa vụ trước 01/9/2027","Nhà cung cấp nước ngoài phải có đầu mối hoặc đại diện hợp pháp tại Việt Nam"]},
+     en:{name:"AI surgical robotics",label:"High risk",basis:"Explicitly listed under healthcare in Decision 33/2026/QĐ-TTg.",tbyt:"A medical device, also regulated under medical device law.",
+       duties:["Conformity assessment before use","Human oversight and override; the surgeon keeps final authority","Transparency, incident handling and reporting under AI Law Arts. 11–12","In operation before 15 Aug 2026: comply by 1 Sep 2027","Foreign providers need a legal contact or authorised representative in Vietnam"]}},
+    {id:"cdss",tier:"mid",
+     vi:{name:"Hỗ trợ đọc ảnh, chẩn đoán",label:"Ước lượng: trung bình",basis:"Không có trong danh mục QĐ 33 hiện hành, nhưng tác động trực tiếp tới quyết định lâm sàng.",tbyt:"Nhiều khả năng là phần mềm trang thiết bị y tế; kiểm tra phân loại theo NĐ 98/2021 và sửa đổi.",
+       duties:["Tự phân loại và lưu hồ sơ theo NĐ 142","Kiểm định trên dữ liệu tại chỗ trước khi dùng","Bác sĩ ký xác nhận mọi kết luận","Theo dõi danh mục rủi ro cao có thể được bổ sung"]},
+     en:{name:"Imaging and diagnostic support",label:"Estimate: medium",basis:"Not on the current Decision 33 list, but directly influences clinical decisions.",tbyt:"Likely software as a medical device; check classification under Decree 98/2021 as amended.",
+       duties:["Self-classify and keep the file under Decree 142","Validate on local data before use","A physician signs off every conclusion","Watch for additions to the high-risk list"]}},
+    {id:"scribe",tier:"mid",
+     vi:{name:"Ghi chú lâm sàng tự động",label:"Ước lượng: trung bình",basis:"Tạo nội dung đưa vào hồ sơ bệnh án; sai sót đi thẳng vào hồ sơ pháp lý.",tbyt:"Thường không là TTBYT nếu chỉ ghi chép, không gợi ý chẩn đoán.",
+       duties:["Người hành nghề ký xác nhận trước khi lưu vào EMR (TT 13/2025)","Gắn nhãn đoạn do AI tạo","Đồng ý ghi âm của người bệnh, xử lý giọng nói là dữ liệu nhạy cảm","Đo tỷ lệ sai, bỏ sót trên tiếng Việt và phương ngữ"]},
+     en:{name:"Ambient clinical documentation",label:"Estimate: medium",basis:"Writes into the medical record; errors go straight into a legal document.",tbyt:"Usually not a medical device if it only documents and does not suggest diagnoses.",
+       duties:["Practitioner signs before saving to EMR (Circular 13/2025)","Label AI-generated passages","Patient consent to recording; treat voice as sensitive data","Measure error and omission rates in Vietnamese and regional dialects"]}},
+    {id:"bhyt",tier:"mid",
+     vi:{name:"Mã hóa ICD, giám định BHYT",label:"Ước lượng: trung bình",basis:"Ảnh hưởng quyền lợi tài chính của người bệnh và cơ sở.",tbyt:"Không phải TTBYT.",
+       duties:["Người mã hóa xác nhận cuối cùng","Lưu vết gợi ý của AI để giải trình khi bị xuất toán","Kiểm tra thiên lệch theo khoa, theo loại bệnh"]},
+     en:{name:"ICD coding, insurance claims",label:"Estimate: medium",basis:"Affects the financial rights of patients and the facility.",tbyt:"Not a medical device.",
+       duties:["A coder gives final confirmation","Keep an audit trail of AI suggestions for claim disputes","Check bias by department and disease group"]}},
+    {id:"bed",tier:"low",
+     vi:{name:"Dự báo công suất giường, cấp cứu",label:"Ước lượng: thấp",basis:"Hỗ trợ điều hành, không quyết định điều trị cho cá nhân.",tbyt:"Không phải TTBYT.",
+       duties:["Tự phân loại và lưu hồ sơ","Dùng dữ liệu tổng hợp hoặc đã khử định danh","Đo sai số dự báo hằng tháng"]},
+     en:{name:"Bed and ED capacity forecasting",label:"Estimate: low",basis:"Supports management; makes no individual treatment decisions.",tbyt:"Not a medical device.",
+       duties:["Self-classify and keep the file","Use aggregated or de-identified data","Track forecast error monthly"]}},
+    {id:"device",tier:"low",
+     vi:{name:"Bảo trì dự đoán thiết bị y tế",label:"Ước lượng: thấp",basis:"Dữ liệu chủ yếu là dữ liệu máy, ít dữ liệu cá nhân.",tbyt:"Không phải TTBYT, nhưng tác động tới an toàn vận hành thiết bị.",
+       duties:["Tự phân loại và lưu hồ sơ","Kỹ sư thiết bị quyết định lịch bảo trì cuối cùng","Tách dữ liệu người bệnh khỏi log thiết bị"]},
+     en:{name:"Predictive equipment maintenance",label:"Estimate: low",basis:"Mostly machine data with little personal data.",tbyt:"Not a medical device, but affects equipment safety.",
+       duties:["Self-classify and keep the file","Biomedical engineers decide the final maintenance schedule","Strip patient data from device logs"]}},
+    {id:"pharm",tier:"low",
+     vi:{name:"Dự báo tồn kho dược, vật tư",label:"Ước lượng: thấp",basis:"Quản trị chuỗi cung ứng nội bộ.",tbyt:"Không phải TTBYT.",
+       duties:["Tự phân loại và lưu hồ sơ","Khoa Dược phê duyệt đơn đặt hàng","Theo dõi thiếu hụt thuốc thiết yếu"]},
+     en:{name:"Pharmacy and supply forecasting",label:"Estimate: low",basis:"Internal supply chain management.",tbyt:"Not a medical device.",
+       duties:["Self-classify and keep the file","Pharmacy approves purchase orders","Monitor essential-medicine shortages"]}},
+    {id:"chat",tier:"low",
+     vi:{name:"Chatbot đặt lịch, hỏi đáp",label:"Ước lượng: thấp",basis:"Tương tác trực tiếp với người dân; rủi ro tăng nếu trả lời tư vấn bệnh.",tbyt:"Không phải TTBYT nếu không tư vấn chẩn đoán.",
+       duties:["Thông báo rõ người dùng đang nói chuyện với AI","Chặn tư vấn chẩn đoán, chuyển nhân viên y tế","Đồng ý xử lý dữ liệu cá nhân ngay đầu cuộc hội thoại"]},
+     en:{name:"Booking and FAQ chatbot",label:"Estimate: low",basis:"Talks directly to the public; risk rises if it gives medical advice.",tbyt:"Not a medical device unless it gives diagnostic advice.",
+       duties:["Tell users clearly they are talking to AI","Block diagnostic advice and hand over to staff","Collect data processing consent at the start"]}},
+    {id:"epi",tier:"low",
+     vi:{name:"Dự báo dịch bệnh, cảnh báo sớm",label:"Ước lượng: thấp",basis:"Phân tích dữ liệu tổng hợp ở mức quần thể.",tbyt:"Không phải TTBYT.",
+       duties:["Chỉ dùng dữ liệu tổng hợp hoặc khử định danh","Chuyên gia dịch tễ quyết định ban hành cảnh báo","Công bố sai số dự báo"]},
+     en:{name:"Outbreak forecasting, early warning",label:"Estimate: low",basis:"Population-level analysis of aggregated data.",tbyt:"Not a medical device.",
+       duties:["Use aggregated or de-identified data only","Epidemiologists decide whether to issue alerts","Publish forecast error"]}}
+  ];
+
+  var lakes=[
+    {vi:{k:"Vận hành giường",own:"Phòng Kế hoạch tổng hợp",src:["HIS: nhập, chuyển, ra viện","Lịch mổ, danh sách chờ","Cấp cứu: thời điểm tiếp nhận, phân loại"],std:"Mã khoa, ICD-10 chẩn đoán ra viện, dấu thời gian chuẩn",ai:["Dự báo công suất 7–14 ngày","Dự báo thời gian nằm viện","Tối ưu lịch phòng mổ"],q:"Dấu thời gian đầy đủ ≥95% lượt điều trị; khớp số giường thực kê"},
+     en:{k:"Bed operations",own:"General Planning Office",src:["HIS: admission, transfer, discharge","OR schedule, waiting lists","ED: arrival time, triage"],std:"Department codes, ICD-10 discharge diagnosis, standard timestamps",ai:["7–14 day capacity forecast","Length-of-stay prediction","Operating room scheduling"],q:"Complete timestamps for ≥95% of episodes; matches actual staffed beds"}},
+    {vi:{k:"Thiết bị y tế",own:"Phòng Vật tư – Thiết bị",src:["Log vận hành, mã lỗi","Lịch sử sửa chữa, bảo dưỡng","Cảm biến IoT: nhiệt độ, dòng điện, giờ chạy"],std:"Mã thiết bị thống nhất, FHIR Device / DeviceMetric",ai:["Dự đoán hỏng hóc","Tối ưu lịch bảo dưỡng","Cảnh báo thiết bị ngoài ngưỡng"],q:"Mỗi thiết bị có mã duy nhất; log liên tục, mất mẫu <5%"},
+     en:{k:"Medical equipment",own:"Equipment and Supplies Office",src:["Operating logs, error codes","Repair and maintenance history","IoT sensors: temperature, current, run hours"],std:"Unique device IDs, FHIR Device / DeviceMetric",ai:["Failure prediction","Maintenance schedule optimisation","Out-of-range alerts"],q:"Unique ID per device; continuous logs with <5% missing samples"}},
+    {vi:{k:"Tim mạch",own:"Khoa Tim mạch",src:["ECG dạng tín hiệu gốc","Siêu âm tim, xét nghiệm men tim","Chẩn đoán, thuốc, tái khám"],std:"LOINC xét nghiệm, ICD-10, định dạng tín hiệu gốc thay vì ảnh chụp",ai:["Phân tầng nguy cơ","Sàng lọc bất thường ECG","Dự báo tái nhập viện"],q:"Nhãn chẩn đoán được bác sĩ tim mạch rà soát trên mẫu kiểm tra"},
+     en:{k:"Cardiology",own:"Cardiology Department",src:["Raw ECG waveforms","Echocardiography, cardiac enzymes","Diagnoses, medications, follow-up"],std:"LOINC for labs, ICD-10, raw signal formats rather than images",ai:["Risk stratification","ECG abnormality screening","Readmission prediction"],q:"Diagnostic labels reviewed by cardiologists on an audit sample"}},
+    {vi:{k:"Nội soi",own:"Khoa Thăm dò chức năng – Nội soi",src:["Video, ảnh nội soi","Kết quả giải phẫu bệnh","Thông số máy nội soi"],std:"DICOM, gắn với kết quả giải phẫu bệnh làm nhãn chuẩn",ai:["Phát hiện tổn thương","Đánh giá chất lượng ca nội soi"],q:"Tỷ lệ ca có giải phẫu bệnh đối chiếu; khử định danh khung hình có chữ"},
+     en:{k:"Endoscopy",own:"Endoscopy Unit",src:["Endoscopy video and images","Histopathology results","Endoscope parameters"],std:"DICOM, linked to histopathology as ground truth",ai:["Lesion detection","Procedure quality assessment"],q:"Share of cases with histopathology match; de-identify frames with burned-in text"}},
+    {vi:{k:"Dịch tễ, KSNK",own:"Khoa Kiểm soát nhiễm khuẩn",src:["Vi sinh, kháng sinh đồ","Ca bệnh truyền nhiễm báo cáo","Sử dụng kháng sinh"],std:"ICD-10, mã vi sinh vật, dữ liệu tổng hợp theo tuần",ai:["Cảnh báo cụm nhiễm khuẩn","Theo dõi kháng kháng sinh","Dự báo ca bệnh theo mùa"],q:"Chuỗi thời gian liên tục ≥3 năm cho dự báo theo mùa"},
+     en:{k:"Epidemiology, IPC",own:"Infection Control Department",src:["Microbiology, antibiograms","Notifiable disease cases","Antibiotic use"],std:"ICD-10, organism codes, weekly aggregates",ai:["Infection cluster alerts","Antimicrobial resistance tracking","Seasonal case forecasting"],q:"Continuous time series of ≥3 years for seasonal models"}},
+    {vi:{k:"Dược, vật tư",own:"Khoa Dược",src:["Xuất nhập tồn","Đơn thuốc, y lệnh","Dữ liệu thanh toán BHYT"],std:"Mã thuốc theo danh mục, chuẩn dữ liệu đầu ra BHYT",ai:["Dự báo nhu cầu","Phát hiện kê đơn bất thường","Cảnh báo tương tác thuốc"],q:"Khớp tồn kho sổ sách và thực tế; mã thuốc thống nhất"},
+     en:{k:"Pharmacy, supplies",own:"Pharmacy Department",src:["Stock movements","Prescriptions, orders","Insurance claims data"],std:"Formulary drug codes, insurance output standard",ai:["Demand forecasting","Unusual prescribing detection","Drug interaction alerts"],q:"Book stock matches physical stock; unified drug codes"}}
+  ];
+
+  var ui={
+    vi:{basis:"Căn cứ:",tbyt:"Thiết bị y tế:",duties:"Việc phải làm",note:"Mọi trường hợp: dữ liệu sức khỏe là dữ liệu cá nhân nhạy cảm theo Luật 91/2025 và NĐ 356/2025. Nhãn \"ước lượng\" là nhận định sơ bộ, không thay hồ sơ phân loại chính thức.",own:"Chủ sở hữu dữ liệu",std:"Chuẩn hóa",src:"Nguồn dữ liệu",ai:"Bài toán AI",q:"Ngưỡng chất lượng tối thiểu",title:"Lộ trình AI Bệnh viện Việt Nam"},
+    en:{basis:"Basis:",tbyt:"Medical device:",duties:"Required actions",note:"In every case, health data is sensitive personal data under Law 91/2025 and Decree 356/2025. \"Estimate\" labels are preliminary and do not replace a formal classification file.",own:"Data owner",std:"Standards",src:"Data sources",ai:"AI use cases",q:"Minimum quality threshold",title:"Vietnam Hospital AI Roadmap"}
+  };
+
+  var curCase=0, curLake=0;
+  var list=document.getElementById('clfList'), out=document.getElementById('clfOut');
+  var tabs=document.getElementById('lakeTabs'), lo=document.getElementById('lakeOut');
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function li(a){return a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('');}
+
+  function renderCases(){
+    list.innerHTML='';
+    cases.forEach(function(c,i){
+      var b=document.createElement('button'); b.type='button';
+      b.setAttribute('aria-pressed', i===curCase?'true':'false');
+      b.innerHTML='<span>'+esc(c[lang].name)+'</span><span class="dot '+c.tier+'" aria-hidden="true"></span>';
+      b.addEventListener('click',function(){curCase=i;renderCases();});
+      list.appendChild(b);
+    });
+    var c=cases[curCase], t=c[lang], u=ui[lang];
+    var chip=c.tier==='high'?'high':(c.tier==='mid'?'draft':'live');
+    out.innerHTML='<div><span class="chip '+chip+'">'+esc(t.label)+'</span></div>'+
+      '<h3>'+esc(t.name)+'</h3>'+
+      '<p><b>'+u.basis+'</b> '+esc(t.basis)+'</p>'+
+      '<p><b>'+u.tbyt+'</b> '+esc(t.tbyt)+'</p>'+
+      '<div><b>'+u.duties+'</b><ul>'+li(t.duties)+'</ul></div>'+
+      '<p class="note">'+esc(u.note)+'</p>';
+  }
+
+  function renderLakes(){
+    tabs.innerHTML='';
+    lakes.forEach(function(d,i){
+      var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab');
+      b.setAttribute('aria-selected', i===curLake?'true':'false');
+      b.textContent=d[lang].k;
+      b.addEventListener('click',function(){curLake=i;renderLakes();});
+      tabs.appendChild(b);
+    });
+    var d=lakes[curLake][lang], u=ui[lang];
+    lo.innerHTML='<div><h4>'+u.own+'</h4><p>'+esc(d.own)+'</p></div>'+
+      '<div><h4>'+u.std+'</h4><p>'+esc(d.std)+'</p></div>'+
+      '<div><h4>'+u.src+'</h4><ul>'+li(d.src)+'</ul></div>'+
+      '<div><h4>'+u.ai+'</h4><ul>'+li(d.ai)+'</ul></div>'+
+      '<div class="full"><h4>'+u.q+'</h4><p>'+esc(d.q)+'</p></div>';
+  }
+
+  function setLang(l){
+    lang=(l==='en')?'en':'vi';
+    app.classList.remove('lang-vi','lang-en');
+    app.classList.add('lang-'+lang);
+    document.documentElement.lang=lang;
+    document.title=ui[lang].title;
+    document.getElementById('btn-vi').setAttribute('aria-pressed', lang==='vi'?'true':'false');
+    document.getElementById('btn-en').setAttribute('aria-pressed', lang==='en'?'true':'false');
+    try{localStorage.setItem('hospitalAiLang',lang);}catch(e){}
+    renderCases(); renderLakes();
+  }
+
+  document.querySelectorAll('.lang button').forEach(function(b){
+    b.addEventListener('click',function(){setLang(b.getAttribute('data-set'));});
+  });
+
+  var saved=null;
+  try{saved=localStorage.getItem('hospitalAiLang');}catch(e){}
+  setLang(saved||'vi');
+})();
+</script>
+</body>
+</html>
